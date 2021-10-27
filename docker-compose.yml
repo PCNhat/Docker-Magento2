@@ -2,64 +2,61 @@ version: "3"
 
 networks:
   pmk_network:
-    name: pmk_network
+    name: ${NETWORK_NAME}
     driver: bridge
 
 services:
     php:
         image: pmk_php:1.0
-        container_name: pmk_php
+        container_name: ${CONTAINER_PREFIX}php
         build:
-            context: ./containers/php
+            context: ${PHP_DOCKERFILE_DIR}
         restart: always
-        working_dir: /var/www/html/pmk
+        working_dir: ${PHP_WORKING_DIR}
         volumes:
-            - ./pmk:/var/www/html/pmk
-            - ./containers/php/conf/php.ini:/usr/local/etc/php/php.ini
+            - ${PROJECT_ROOT}:${PHP_WORKING_DIR}
+            - ${PHP_INI_DIR}/php.ini:/usr/local/etc/php/php.ini
         networks:
-            - pmk_network
+            - ${NETWORK_NAME}
         
     mysql:
         image: pmk_mysql:1.0
-        container_name: pmk_mysql
+        container_name: ${CONTAINER_PREFIX}mysql
         build:
-            context: ./containers/mysql
+            context: ${MYSQL_DOCKERFILE_DIR}
         volumes:
-            - ./containers/mysql/db:/var/lib/mysql
+            - ${MYSQL_DB_DIR}:/var/lib/mysql
+            - ${MYSQL_DB_DUMP_DIR}/${MYSQL_DB_DUMP_NAME}:/docker-entrypoint-initdb.d/${MYSQL_DB_DUMP_NAME}
         environment:
-            MYSQL_ROOT_PASSWORD: megazone
-            # MYSQL_DATABASE: pmk
-            # MYSQL_USER: pmk
-            # MYSQL_PASSWORD: megazone
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DB_NAME}
         command: --default-authentication-plugin=mysql_native_password
-        # ports:
-        #     - "3316:3306"
         networks:
-            - pmk_network
+            - ${NETWORK_NAME}
 
 
     httpd:
         image: pmk_httpd:1.0
-        container_name: pmk_httpd
+        container_name: ${CONTAINER_PREFIX}httpd
         build:
-            context: ./containers/httpd
+            context: ${HTTPD_DOCKERFILE_DIR}
         privileged: true
         volumes:
-            - ./pmk:/var/www/html/pmk
-            - ./containers/httpd/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
+            - ${PROJECT_ROOT}:${HTTPD_WORKING_DIR}
+            - ${HTTPD_CONF_DIR}/httpd.conf:/usr/local/apache2/conf/httpd.conf
         ports:
             - "80:80"
         networks:
-            - pmk_network
+            - ${NETWORK_NAME}
 
     elasticsearch:
         image: pmk_elasticsearch:1.0
-        container_name: pmk_elasticsearch
+        container_name: ${CONTAINER_PREFIX}elasticsearch
         build:
             context: ./containers/elasticsearch
         volumes:
-            - ./containers/elasticsearch/data:/usr/share/elasticsearch/data
-            - ./containers/elasticsearch/conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+            - ${ES_DATA_DIR}:/usr/share/elasticsearch/data
+            - ${ES_CONF_DIR}/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
         environment:
             - cluster.name=docker.cluster
             - bootstrap.memory_lock=true
@@ -73,4 +70,4 @@ services:
                 soft: -1
                 hard: -1
         networks:
-            - pmk_network
+            - ${NETWORK_NAME}
