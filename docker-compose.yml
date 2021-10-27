@@ -1,0 +1,76 @@
+version: "3"
+
+networks:
+  pmk_network:
+    name: pmk_network
+    driver: bridge
+
+services:
+    php:
+        image: pmk_php:1.0
+        container_name: pmk_php
+        build:
+            context: ./containers/php
+        restart: always
+        working_dir: /var/www/html/pmk
+        volumes:
+            - ./pmk:/var/www/html/pmk
+            - ./containers/php/conf/php.ini:/usr/local/etc/php/php.ini
+        networks:
+            - pmk_network
+        
+    mysql:
+        image: pmk_mysql:1.0
+        container_name: pmk_mysql
+        build:
+            context: ./containers/mysql
+        volumes:
+            - ./containers/mysql/db:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: megazone
+            # MYSQL_DATABASE: pmk
+            # MYSQL_USER: pmk
+            # MYSQL_PASSWORD: megazone
+        command: --default-authentication-plugin=mysql_native_password
+        # ports:
+        #     - "3316:3306"
+        networks:
+            - pmk_network
+
+
+    httpd:
+        image: pmk_httpd:1.0
+        container_name: pmk_httpd
+        build:
+            context: ./containers/httpd
+        privileged: true
+        volumes:
+            - ./pmk:/var/www/html/pmk
+            - ./containers/httpd/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
+        ports:
+            - "80:80"
+        networks:
+            - pmk_network
+
+    elasticsearch:
+        image: pmk_elasticsearch:1.0
+        container_name: pmk_elasticsearch
+        build:
+            context: ./containers/elasticsearch
+        volumes:
+            - ./containers/elasticsearch/data:/usr/share/elasticsearch/data
+            - ./containers/elasticsearch/conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+        environment:
+            - cluster.name=docker.cluster
+            - bootstrap.memory_lock=true
+            - xpack.security.enabled=false
+            - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+            - "http.host=0.0.0.0"
+            - "transport.host=127.0.0.1"
+            - "discovery.zen.ping.unicast.hosts=elasticsearch"
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        networks:
+            - pmk_network
