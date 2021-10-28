@@ -6,6 +6,7 @@ Copy the file .env.eample to .env with command and update evironment variable va
 ```
 
 Copy all source code of project and paste it into the pmk folder.
+
 Copy database dump file have extension sql and paste into pmk folder.
 
 Run:
@@ -23,4 +24,13 @@ After docker compose run successfully. We need to config and import database of 
 ```
 
 Use  http://localhost to access `project side`
-Use http://localhost:8080 to access `phpmyadmin` 
+
+Use http://localhost:8080 to access `phpmyadmin`
+
+Config for project connect to elasticsearch container
+
+```sh
+    bin/magento config:set catalog/search/engine 'elasticsearch7'
+    bin/magento config:set catalog/search/elasticsearch7_server_hostname '<elasticsearch_container>'
+    bin/magento config:set catalog/search/elasticsearch7_server_port '9200'
+```
