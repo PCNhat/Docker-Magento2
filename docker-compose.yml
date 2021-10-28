@@ -26,7 +26,7 @@ services:
             context: ${MYSQL_DOCKERFILE_DIR}
         volumes:
             - ${MYSQL_DB_DIR}:/var/lib/mysql
-            - ${MYSQL_DB_DUMP_DIR}/${MYSQL_DB_DUMP_NAME}:/docker-entrypoint-initdb.d/${MYSQL_DB_DUMP_NAME}:ro
+            - ${MYSQL_DB_DUMP_DIR}/${MYSQL_DB_DUMP_NAME}:/docker-entrypoint-initdb.d/${MYSQL_DB_DUMP_NAME}
         environment:
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
             MYSQL_DATABASE: ${MYSQL_DB_NAME}
