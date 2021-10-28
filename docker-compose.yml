@@ -26,14 +26,27 @@ services:
             context: ${MYSQL_DOCKERFILE_DIR}
         volumes:
             - ${MYSQL_DB_DIR}:/var/lib/mysql
-            - ${MYSQL_DB_DUMP_DIR}/${MYSQL_DB_DUMP_NAME}:/docker-entrypoint-initdb.d/${MYSQL_DB_DUMP_NAME}
+            - ${MYSQL_DB_DUMP_DIR}/${MYSQL_DB_DUMP_NAME}:/docker-entrypoint-initdb.d/${MYSQL_DB_DUMP_NAME}:ro
         environment:
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
             MYSQL_DATABASE: ${MYSQL_DB_NAME}
-        command: --default-authentication-plugin=mysql_native_password
+        command: --default-authentication-plugin=mysql_native_password && create database testcommand
         networks:
             - ${NETWORK_NAME}
 
+    phpmyadmin:
+        image: pmk_phpmyadmin:1.0
+        container_name: ${CONTAINER_PREFIX}phpmyadmin
+        build: 
+            context: ${PHPMYADMIN_DOCKERFILE_DIR}
+        volumes:
+            - ${PHPMYADMIN_CONF_DIR}/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+        environment:
+            PMA_HOST: ${CONTAINER_PREFIX}mysql
+        ports:
+            - "8080:80"
+        networks:
+            - ${NETWORK_NAME}
 
     httpd:
         image: pmk_httpd:1.0
