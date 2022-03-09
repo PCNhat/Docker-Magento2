@@ -1,13 +1,13 @@
 version: "3"
 
 networks:
-  pmk_network:
+  mgt_network:
     name: ${NETWORK_NAME}
     driver: bridge
 
 services:
     php:
-        image: pmk_php:1.0
+        image: mgt_php:1.0
         container_name: ${CONTAINER_PREFIX}php
         build:
             context: ${PHP_DOCKERFILE_DIR}
@@ -20,24 +20,26 @@ services:
             - ${NETWORK_NAME}
         
     mysql:
-        image: pmk_mysql:1.0
+        image: mgt_mysql:1.0
         container_name: ${CONTAINER_PREFIX}mysql
         build:
             context: ${MYSQL_DOCKERFILE_DIR}
         volumes:
             - ${MYSQL_DB_DIR}:/var/lib/mysql
-            - ${MYSQL_DB_DUMP_DIR}/${MYSQL_DB_DUMP_NAME}:/docker-entrypoint-initdb.d/${MYSQL_DB_DUMP_NAME}
         environment:
+            MYSQL_ROOT_USER: ${MYSQL_ROOT_USER}
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
             MYSQL_DATABASE: ${MYSQL_DB_NAME}
-        command: --default-authentication-plugin=mysql_native_password && create database testcommand
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        command: --default-authentication-plugin=mysql_native_password
         networks:
             - ${NETWORK_NAME}
 
     phpmyadmin:
-        image: pmk_phpmyadmin:1.0
+        image: mgt_phpmyadmin:1.0
         container_name: ${CONTAINER_PREFIX}phpmyadmin
-        build: 
+        build:
             context: ${PHPMYADMIN_DOCKERFILE_DIR}
         volumes:
             - ${PHPMYADMIN_CONF_DIR}/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
@@ -49,7 +51,7 @@ services:
             - ${NETWORK_NAME}
 
     httpd:
-        image: pmk_httpd:1.0
+        image: mgt_httpd:1.0
         container_name: ${CONTAINER_PREFIX}httpd
         build:
             context: ${HTTPD_DOCKERFILE_DIR}
@@ -63,7 +65,7 @@ services:
             - ${NETWORK_NAME}
 
     elasticsearch:
-        image: pmk_elasticsearch:1.0
+        image: mgt_elasticsearch:1.0
         container_name: ${CONTAINER_PREFIX}elasticsearch
         build:
             context: ./containers/elasticsearch

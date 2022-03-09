@@ -1,5 +1,5 @@
-pmk/*
 containers/mysql/db/*
 containers/elasticsearch/data/*
 .env
 .idea
+project/

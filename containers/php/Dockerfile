@@ -21,6 +21,15 @@ RUN apt-get update && apt-get install libgmp-dev -y && \
 RUN apt-get -y update \
     && apt-get install -y libicu-dev \ 
     && docker-php-ext-configure intl \
-    && docker-php-ext-install intl
+    && docker-php-ext-install intl \
+    && apt-get update \
+    && apt-get install -y libxml2-dev \
+    && docker-php-ext-install soap \
+    && docker-php-ext-install bcmath \
+    && apt-get install -y libxslt1-dev \
+    && docker-php-ext-install xsl \
+    && apt-get install -y libzip-dev \
+    && docker-php-ext-install zip \
+    && docker-php-ext-install sockets
 
-WORKDIR /var/www/html/pmk
+WORKDIR /var/www/html/project
