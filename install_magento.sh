@@ -1,6 +1,25 @@
 # Set environment variables for php container
 export $(grep -v '^#' .env | xargs)
 
+rm .env
+rm install_magento.sh
+
+composer config --global http-basic.repo.magento.com ${MAGENTO_PUBLIC_KEY} ${MAGENTO_PRIVATE_KEY}
+
+# Download Magento community edition
+echo "\n\nStart downloading Magento CE project..."
+composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition ./
+
+
+
+# Set project file permissions
+echo "\n\nStart setting project file permissions..."
+find var generated vendor pub/static pub/media app/etc -type f -exec chmod g+w {} +
+find var generated vendor pub/static pub/media app/etc -type d -exec chmod g+ws {} +
+chmod u+x bin/magento
+
+
+
 # Perform install Magento
 bin/magento setup:install \
 --base-url=http://localhost \
