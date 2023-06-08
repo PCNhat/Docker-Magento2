@@ -4,11 +4,12 @@ export $(grep -v '^#' .env | xargs)
 rm .env
 rm install_magento.sh
 
+composer self-update --1
 composer config --global http-basic.repo.magento.com ${MAGENTO_PUBLIC_KEY} ${MAGENTO_PRIVATE_KEY}
 
 # Download Magento community edition
 echo "\n\nStart downloading Magento CE project..."
-composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition ./
+composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition:2.4.1-p1 ./
 
 
 

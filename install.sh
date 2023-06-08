@@ -7,7 +7,7 @@ export $(grep -v '^#' .env | xargs)
 # Run docker compose to initialize containers
 # List containers: elasticsearch, httpd, mysql, php, phpmyadmin
 echo "\n\nStart running docker compose..."
-docker-compose up -d
+docker compose up -d
 
 # Install Magento
 echo "\n\nStart installing Magento..."
